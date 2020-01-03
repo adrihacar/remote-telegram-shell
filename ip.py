@@ -1,6 +1,15 @@
-import subprocess
+import urllib.request
+ 
+ 
+def get_ip():
+ return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
+
+
+def send_message():
+ 
  
 
-new_ip = subprocess.Popen("curl -s icanhazip.com", stdout=subprocess.PIPE, shell=True)
-(output, err) = p.communicate()
-p_status = p.wait()
+def check_telegram():
+ 
+ 
+ 
