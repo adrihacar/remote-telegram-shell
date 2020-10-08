@@ -39,7 +39,8 @@ You can run this script in background and redirect the standard output
 ./telegram_shell.py  >/dev/null &
 ```
 Open your telegram conversation and enjoy :)
-![picture](img/screenshot.jpeg)
+
+[<img src="img/screenshot.jpeg" width="250"/>](img/screenshot.jpeg)
 
 
 ## Contributing
