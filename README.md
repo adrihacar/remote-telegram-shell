@@ -20,10 +20,12 @@ mkdir -p $HOME/.config/telegram-shell && cp ./telegram-shell-conf.json $HOME/.co
 ```
 
 Fill the configuration file with the TOKEN and the CHAT ID
-```{
+```
+{
 "TOKEN":"",
 "CHAT_ID":""
-}```
+}
+```
 
 Install all the dependencies
 ```bash
