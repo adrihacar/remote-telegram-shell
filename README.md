@@ -1,5 +1,5 @@
 # Remote Telegram shell
-> This is a program that uses Telegram to interact with a remote machine executing any command. You **don't need** the ip addres of the machine you want to connect to.
+> This is a program that uses Telegram to interact with a remote machine executing any command. You **don't need** the ip address of the machine you want to connect to.
 
 ## Prerequisites
 * [Get a Telegram Bot and a Token](https://core.telegram.org/bots)
