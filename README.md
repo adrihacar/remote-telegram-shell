@@ -11,7 +11,7 @@ Once you have the token and the id of the chat you want to use to interact with 
 
 Clone the repository
 ```bash
-https://github.com/adrihacar/remote-telegram-shell.git
+git clone https://github.com/adrihacar/remote-telegram-shell.git
 ```
 Copy the file configuration file to the path specified in the script
 ```bash
