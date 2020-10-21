@@ -7,12 +7,22 @@ import os
 import json
 import sys
 import re
+import glob
 
 
 def init():
+    
     read_conf_file()
     global bot
     global update_id
+    global ScriptLocationPath
+    ScriptLocationPath=os.getcwd()
+    fileList = glob.glob(ScriptLocationPath+'/*_telegram-shell-status.json')   #Restore chat status files when restart code
+    for filePath in fileList:
+        try:
+            os.remove(filePath)
+        except:
+            pring("Error while deleting file : ", +filePath)
     bot=telegram.Bot(token)
     try:
        update_id = bot.get_updates()[0].update_id+1
@@ -22,7 +32,7 @@ def init():
 def read_conf_file():
     try:
     	#place route to configuration file here
-        f = open(os.environ['HOME']+'/.config/telegram-shell/telegram-shell-conf.json') #
+        f = open('/home/osboxes/Desktop/telegram-shell-conf.json') #
     except FileNotFoundError:
         print("Configuration file not found", file=sys.stderr)
         sys.exit(1)
@@ -34,8 +44,10 @@ def read_conf_file():
         data = json.load(f) #check the json is a valid one
         token = data['TOKEN']
         chat_id_config = data['CHAT_ID']
+        f.close()
     except:
         print("Format of the configuration file is not correct", file=sys.stderr)
+        f.close()
         sys.exit(1)
     
     
@@ -47,27 +59,69 @@ def get_ip():
 def send_message(msg, chat_id):
     bot.sendMessage(chat_id=chat_id, text=msg, parse_mode=ParseMode.HTML)
  
+def cd_function(folder, chat_id):
+    try:
+        f=open(ScriptLocationPath+"/"+str(chat_id)+"_telegram-shell-status.json", "r")  #Check if this chat has a previous location
+        data = json.load(f)
+        currentLocation = data['PATH']
+        f.close()
+    except:
+        currentLocation = "/home"
+    
+    folder= currentLocation +"/" +folder
+    try:  #Check if next location exist
+        os.chdir(folder)
+        currentLocation=os.getcwd()
+        f=open(ScriptLocationPath+"/"+str(chat_id)+"_telegram-shell-status.json", "w+")
+        text = """{
+            "PATH":"""+'"'+currentLocation+'"'"""
+        }"""
+        f.write(text)
+        f.close()  
+        resp = "PATH: $"+currentLocation+"\n\n\n"+os.popen("ls").read()
+        send_message(resp,chat_id) 
+    except FileNotFoundError:
+        resp = "File not found, please check again"
+        send_message(resp,chat_id) 
+
+def ls_function(chat_id):
+    try:
+        f=open(ScriptLocationPath+"/"+str(chat_id)+"_telegram-shell-status.json", "r")  #Check if this chat has a previous location
+        data = json.load(f)
+        currentLocation = data['PATH']
+        f.close()
+    except:
+        currentLocation = "/home"
+
+    resp = "PATH: $"+currentLocation+"\n\n\n"+os.popen("ls").read()
+    send_message(resp,chat_id) 
+
+    
+    
+ 
 def answer_telegram (msg, chat_id):
     if(msg.lower() == "ip"):
-                    ip=get_ip()
-                    send_message(ip,chat_id)
-                elif(re.match("cd .*", msg.lower())):  #cd command
-                    folder = msg.lower().split("cd ")
-                    os.chdir(folder[1])
-                    resp = os.popen("ls").read()
-                    send_message(resp,chat_id)      
-                else:
-                    print(msg)
-                    resp = os.popen(msg).read()
-                    if(resp != ""):
-                        send_message(resp,chat_id)
-                    else: ### In case the command should be lower letters
-                        resp = os.popen(msg.lower()).read()
-                        if(resp != ""):
-                            send_message(resp,chat_id)
-                        else:  ### In case the command isnt't available or not exists
-                            resp = "Command not available"
-                            send_message(resp,chat_id)
+        ip=get_ip()
+        send_message(ip,chat_id)
+    elif(re.match("cd .*", msg.lower())):  #cd_command
+        folder = msg[3:]
+        if re.match("\/.*", folder): #Checking if the string starts with slash
+            folder.replace("/", "", 1)   
+        cd_function(folder, chat_id)
+    elif(re.match("ls", msg.lower())):
+        ls_function(chat_id)
+    else:
+        print(msg)
+        resp = os.popen(msg).read()
+        if(resp != ""):
+            send_message(resp,chat_id)
+        else: ### In case the command should be lower letters
+            resp = os.popen(msg.lower()).read()
+            if(resp != ""):
+                send_message(resp,chat_id)
+            else:  ### In case the command isnt't available or not exists
+                resp = "Command not available"
+                send_message(resp,chat_id)
     
 def check_telegram_dinamic_ChatID():
     while True:
