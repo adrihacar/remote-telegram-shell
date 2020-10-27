@@ -32,7 +32,7 @@ def init():
 def read_conf_file():
     try:
     	#place route to configuration file here
-        f = open('/home/osboxes/Desktop/telegram-shell-conf.json') #
+        f = open('os.environ['HOME']+'/.config/telegram-shell/telegram-shell-conf.json') #
     except FileNotFoundError:
         print("Configuration file not found", file=sys.stderr)
         sys.exit(1)
