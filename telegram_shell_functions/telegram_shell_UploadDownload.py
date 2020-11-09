@@ -17,7 +17,7 @@ def File(update, bot, type):
         url=telegram.Bot.get_file(bot,file_id=aux.file_id).file_path
         r= requests.get(url)
         return r, filename 
-    else:
+    else: #photos and videos don't have filename so it is generated from msgID
         msgID=update.message.message_id
         if (type=="video"):
             extension=aux.mime_type.split('/')[1]
@@ -25,7 +25,7 @@ def File(update, bot, type):
             url=telegram.Bot.get_file(bot,file_id=aux.file_id).file_path        
         elif (type=="photo"):
             filename= str(msgID)+".jpg"
-            url=telegram.Bot.get_file(bot,file_id=aux[0].file_id).file_path
+            url=telegram.Bot.get_file(bot,file_id=aux[0].file_id).file_path #the json received from Telegram is diferent 
         
         r= requests.get(url)
         return r, filename
