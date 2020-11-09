@@ -24,7 +24,7 @@ def File(update, bot, type):
             filename= str(msgID)+"."+extension   
             url=telegram.Bot.get_file(bot,file_id=aux.file_id).file_path        
         elif (type=="photo"):
-            filename= str(msgID)+".jpg"
+            filename= str(msgID)+".jpg" #photo files don't come with extension so it will be always identified as jpg
             url=telegram.Bot.get_file(bot,file_id=aux[0].file_id).file_path #the json received from Telegram is diferent 
         
         r= requests.get(url)

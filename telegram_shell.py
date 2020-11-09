@@ -62,7 +62,22 @@ def send_message(msg, chat_id):
  
  
 def answer_telegram (msg, chat_id):
-    if(msg.lower() == "ip"):
+    if(msg.lower() == "help"):
+        resp='''Available commands:
+        
+ls: displays current folder files
+
+cd *path*: move arround folders 
+
+cat *file*: displays text of the file
+
+ip: Returns the IP of the server
+
+Upload an file: It will upload the file to the server in the path you are in the moment
+
+python3 *file*.py: If you have python3 installed and all the requirements for executing the program it will execute the python file and return the output'''
+        send_message(resp,chat_id)
+    elif(msg.lower() == "ip"):
         ip=Basicfunctions.get_ip()
         send_message(ip,chat_id)
     elif(re.match("cd .*", msg.lower())):  #cd_command
@@ -100,7 +115,7 @@ def check_telegram_dinamic_ChatID():
                 msg=update.message.text
                 chat_id=update.message.chat.id
                 print(msg) #The command is printed
-                if(msg != None):
+                if(msg != None): # if msg is none then is not a txt message
                     answer_telegram (msg, chat_id)
                 else:
                     resp=UpDownfunctions.downloadFile(update, chat_id, ScriptLocationPath, bot)
@@ -118,8 +133,11 @@ def check_telegram():
                 if update.message:  # your bot can receive updates without messages
                     msg=update.message.text
                     print(msg) #The command is printed
-                    if(msg != None):
+                    if(msg != None): # if msg is none then is not a txt message
                         answer_telegram (msg, chat_id_config)
+                    else:
+                        resp=UpDownfunctions.downloadFile(update, chat_id_config, ScriptLocationPath, bot)
+                        send_message(resp,chat_id_config)
         sleep(4)
 
 init()
