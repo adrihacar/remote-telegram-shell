@@ -60,7 +60,9 @@ def read_conf_file():
 def send_message(msg, chat_id):
     bot.sendMessage(chat_id=chat_id, text=msg, parse_mode=ParseMode.HTML)
  
- 
+def send_document(document, chat_id):
+    bot.send_document(document=document, chat_id=chat_id)
+    
 def answer_telegram (msg, chat_id):
     if(msg.lower() == "help"):
         resp='''Available commands:
@@ -75,7 +77,9 @@ ip: Returns the IP of the server
 
 Upload an file: It will upload the file to the server in the path you are in the moment
 
-python3 *file*.py: If you have python3 installed and all the requirements for executing the program it will execute the python file and return the output'''
+get *file*: Send throught telegram the file you chose
+
+python3 *file*.py: If you have all the requirements for executing the program it will execute the python file and return the output'''
         send_message(resp,chat_id)
     elif(msg.lower() == "ip"):
         ip=Basicfunctions.get_ip()
@@ -89,6 +93,12 @@ python3 *file*.py: If you have python3 installed and all the requirements for ex
     elif(re.match("ls", msg.lower())):
         resp=Basicfunctions.ls_function(chat_id, ScriptLocationPath)
         send_message(resp,chat_id)
+    elif(re.match("get .*", msg.lower())):
+        document = msg[4:]
+        if re.match("\/.*", document): #Checking if the string starts with slash
+            document.replace("/", "", 1)
+        document=UpDownfunctions.uploadFile(chat_id, ScriptLocationPath, document)
+        send_document(document, chat_id)
     else:
         print(msg)
         resp = os.popen(msg).read()

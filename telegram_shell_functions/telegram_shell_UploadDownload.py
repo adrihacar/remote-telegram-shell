@@ -49,3 +49,15 @@ def downloadFile(update, chat_id, ScriptLocationPath, bot):
     resp="upload Completed, saved with name "+name_content[1]+"\n\n" + Basicfunctions.ls_function(chat_id, ScriptLocationPath)
     return resp
 
+
+def uploadFile(chat_id, ScriptLocationPath, document):
+    try:
+        f=open(ScriptLocationPath+"/"+str(chat_id)+"_telegram-shell-status.json", "r")  #Check if this chat has a previous location
+        data = json.load(f)
+        currentLocation = data['PATH']
+        f.close()
+    except:
+        currentLocation = "/home"
+    os.chdir(currentLocation)
+    resp=open(document, 'rb')
+    return resp
