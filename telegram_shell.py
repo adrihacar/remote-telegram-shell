@@ -37,7 +37,7 @@ def init():
 def read_conf_file():
     try:
     	#place route to configuration file here
-        f = open('/home/osboxes/Desktop/telegram-shell-conf.json') #
+        f = open(os.environ['HOME']+'/.config/telegram-shell/telegram-shell-conf.json') #
     except FileNotFoundError:
         print("Configuration file not found", file=sys.stderr)
         sys.exit(1)
@@ -61,7 +61,10 @@ def send_message(msg, chat_id):
     bot.sendMessage(chat_id=chat_id, text=msg, parse_mode=ParseMode.HTML)
  
 def send_document(document, chat_id):
-    bot.send_document(document=document, chat_id=chat_id)
+    try: ##  In case document doesn't exist
+        bot.send_document(document=document, chat_id=chat_id)
+    except:
+        send_message(document, chat_id)
     
 def answer_telegram (msg, chat_id):
     if(msg.lower() == "help"):
@@ -88,10 +91,13 @@ python3 *file*.py: If you have all the requirements for executing the program it
         folder = msg[3:]
         if re.match("\/.*", folder): #Checking if the string starts with slash
             folder.replace("/", "", 1)   
-        resp=Basicfunctions.cd_function(folder, chat_id, ScriptLocationPath)
+        resp=Basicfunctions.cd_function(chat_id, ScriptLocationPath, folder)
         send_message(resp,chat_id)
     elif(re.match("ls", msg.lower())):
-        resp=Basicfunctions.ls_function(chat_id, ScriptLocationPath)
+        folder = msg[3:]
+        if re.match("\/.*", folder): #Checking if the string starts with slash
+            folder.replace("/", "", 1)
+        resp=Basicfunctions.ls_function(chat_id, ScriptLocationPath, folder)
         send_message(resp,chat_id)
     elif(re.match("get .*", msg.lower())):
         document = msg[4:]

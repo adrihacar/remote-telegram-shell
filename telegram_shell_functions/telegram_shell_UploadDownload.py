@@ -45,8 +45,12 @@ def downloadFile(update, chat_id, ScriptLocationPath, bot):
         name_content=File(update, bot, "document")
     elif(update.message.photo != None):
         name_content=File(update, bot, "photo")
-    open(name_content[1], 'wb').write(name_content[0].content) #Saving (be carefull it will not check it the file already exists)
-    resp="upload Completed, saved with name "+name_content[1]+"\n\n" + Basicfunctions.ls_function(chat_id, ScriptLocationPath)
+    try:
+        open(name_content[1], 'wb').write(name_content[0].content) #Saving (be carefull it will not check it the file already exists)
+        resp="upload Completed, saved with name "+name_content[1]+"\n\n" + Basicfunctions.ls_function(chat_id, ScriptLocationPath)
+    
+    except PermissionError:
+        resp="Permission Error, please try in a different directory"
     return resp
 
 
@@ -58,6 +62,9 @@ def uploadFile(chat_id, ScriptLocationPath, document):
         f.close()
     except:
         currentLocation = "/home"
-    os.chdir(currentLocation)
-    resp=open(document, 'rb')
+    try:
+        os.chdir(currentLocation)
+        resp=open(document, 'rb')
+    except FileNotFoundError:
+        resp="the file: "+document+" doesn't exist please check spelling or location it is case sensitive"
     return resp

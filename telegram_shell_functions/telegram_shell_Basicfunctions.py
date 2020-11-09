@@ -10,7 +10,7 @@ import re
 import glob
 
 
-def cd_function(folder, chat_id, ScriptLocationPath):
+def cd_function(chat_id, ScriptLocationPath, folder):
     try:
         f=open(ScriptLocationPath+"/"+str(chat_id)+"_telegram-shell-status.json", "r")  #Check if this chat has a previous location
         data = json.load(f)
@@ -37,7 +37,7 @@ def cd_function(folder, chat_id, ScriptLocationPath):
         return resp
         #send_message(resp,chat_id) 
 
-def ls_function(chat_id, ScriptLocationPath):
+def ls_function(chat_id, ScriptLocationPath, path=""):
     try:
         f=open(ScriptLocationPath+"/"+str(chat_id)+"_telegram-shell-status.json", "r")  #Check if this chat has a previous location
         data = json.load(f)
@@ -46,7 +46,8 @@ def ls_function(chat_id, ScriptLocationPath):
     except:
         currentLocation = "/home"
     os.chdir(currentLocation)
-    resp = "PATH: $"+currentLocation+"\n\n\n"+os.popen("ls").read()
+    lsPath= "ls "+path
+    resp = "PATH: $"+currentLocation+path+"\n\n\n"+os.popen(lsPath).read()
     return resp 
     
 def get_ip():
