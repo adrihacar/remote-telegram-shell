@@ -95,6 +95,7 @@ def check_telegram_dinamic_ChatID():
         # Request updates after the last update_id
         for update in bot.get_updates(offset=update_id, timeout=10):
             update_id = update.update_id + 1
+            print (update)
             if update.message:  # your bot can receive updates without messages
                 msg=update.message.text
                 chat_id=update.message.chat.id
@@ -102,9 +103,7 @@ def check_telegram_dinamic_ChatID():
                 if(msg != None):
                     answer_telegram (msg, chat_id)
                 else:
-                    filename=update.message.document.file_name
-                    url=telegram.Bot.get_file(bot,file_id=update.message.document.file_id).file_path
-                    resp=UpDownfunctions.downloadFile(filename, url, chat_id, ScriptLocationPath)
+                    resp=UpDownfunctions.downloadFile(update, chat_id, ScriptLocationPath, bot)
                     send_message(resp,chat_id)
                 
         sleep(4)
