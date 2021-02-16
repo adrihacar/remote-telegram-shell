@@ -9,6 +9,7 @@ import json
 import sys
 import re
 import glob
+import random
 
 def File(update, bot, type):
     aux=getattr(update.message, type)
@@ -16,7 +17,7 @@ def File(update, bot, type):
         filename=aux.file_name
         url=telegram.Bot.get_file(bot,file_id=aux.file_id).file_path
         r= requests.get(url)
-        return r, filename 
+        return r, filename         
     else: #photos and videos don't have filename so it is generated from msgID
         msgID=update.message.message_id
         if (type=="video"):
@@ -68,3 +69,9 @@ def uploadFile(chat_id, ScriptLocationPath, document):
     except FileNotFoundError:
         resp="the file: "+document+" doesn't exist please check spelling or location it is case sensitive"
     return resp
+
+def sticker():
+        n=random.randint(1,86)
+        url="https://telegramchannels.me/storage/stickers/sidhumoosewalaonly/big_sidhumoosewalaonly_"+str(n)+".png"
+        #telegramchannels.me/storage/stickers/sidhumoosewalaonly/big_sidhumoosewalaonly_6.png
+        return url

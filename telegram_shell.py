@@ -37,7 +37,7 @@ def init():
 def read_conf_file():
     try:
     	#place route to configuration file here
-        f = open(os.environ['HOME']+'/.config/telegram-shell/telegram-shell-conf.json') #
+        f = open('/home/osboxes/Desktop/telegram-shell-conf.json') #
     except FileNotFoundError:
         print("Configuration file not found", file=sys.stderr)
         sys.exit(1)
@@ -55,7 +55,9 @@ def read_conf_file():
         f.close()
         sys.exit(1)
     
-    
+def send_sticker(url):
+    print(url)
+    bot.send_sticker(sticker=url, chat_id=chat_id)
     
 def send_message(msg, chat_id):
     bot.sendMessage(chat_id=chat_id, text=msg, parse_mode=ParseMode.HTML)
@@ -133,6 +135,9 @@ def check_telegram_dinamic_ChatID():
                 print(msg) #The command is printed
                 if(msg != None): # if msg is none then is not a txt message
                     answer_telegram (msg, chat_id)
+                elif(update.message.sticker!=None): #
+                    url=UpDownfunctions.sticker()
+                    send_sticker(url)
                 else:
                     resp=UpDownfunctions.downloadFile(update, chat_id, ScriptLocationPath, bot)
                     send_message(resp,chat_id)

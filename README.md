@@ -20,7 +20,8 @@ mkdir -p $HOME/.config/telegram-shell && cp ./telegram-shell-conf.json $HOME/.co
 ```
 
 Fill the configuration file with the TOKEN and the CHAT ID
-CHAT ID can be empty, it is not required if you want the program to be executed from more than one chat
+
+*CHAT ID can be empty, it is not required if you want the program to be executed from more than one chat*
 ```
 {
 "TOKEN":"",
