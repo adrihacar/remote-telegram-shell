@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 import urllib.request
 from time import sleep
+import requests
 import telegram
+import telegram_shell_functions.telegram_shell_Basicfunctions as Basicfunctions
+import telegram_shell_functions.telegram_shell_UploadDownload as UpDownfunctions
 from telegram import ParseMode
 import os
 import json
 import sys
 import re
 import glob
+
+
 
 
 def init():
@@ -32,7 +37,7 @@ def init():
 def read_conf_file():
     try:
     	#place route to configuration file here
-        f = open(os.environ['HOME']+'/.config/telegram-shell/telegram-shell-conf.json') #
+        f = open('os.environ['HOME']+'/.config/telegram-shell/telegram-shell-conf.json') #
     except FileNotFoundError:
         print("Configuration file not found", file=sys.stderr)
         sys.exit(1)
@@ -50,66 +55,58 @@ def read_conf_file():
         f.close()
         sys.exit(1)
     
+def send_sticker(url):
+    print(url)
+    bot.send_sticker(sticker=url, chat_id=chat_id)
     
-	
-def get_ip():
- return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
-
-
 def send_message(msg, chat_id):
     bot.sendMessage(chat_id=chat_id, text=msg, parse_mode=ParseMode.HTML)
  
-def cd_function(folder, chat_id):
-    try:
-        f=open(ScriptLocationPath+"/"+str(chat_id)+"_telegram-shell-status.json", "r")  #Check if this chat has a previous location
-        data = json.load(f)
-        currentLocation = data['PATH']
-        f.close()
+def send_document(document, chat_id):
+    try: ##  In case document doesn't exist
+        bot.send_document(document=document, chat_id=chat_id)
     except:
-        currentLocation = "/home"
+        send_message(document, chat_id)
     
-    folder= currentLocation +"/" +folder
-    try:  #Check if next location exist
-        os.chdir(folder)
-        currentLocation=os.getcwd()
-        f=open(ScriptLocationPath+"/"+str(chat_id)+"_telegram-shell-status.json", "w+")
-        text = """{
-            "PATH":"""+'"'+currentLocation+'"'"""
-        }"""
-        f.write(text)
-        f.close()  
-        resp = "PATH: $"+currentLocation+"\n\n\n"+os.popen("ls").read()
-        send_message(resp,chat_id) 
-    except FileNotFoundError:
-        resp = "File not found, please check again"
-        send_message(resp,chat_id) 
-
-def ls_function(chat_id):
-    try:
-        f=open(ScriptLocationPath+"/"+str(chat_id)+"_telegram-shell-status.json", "r")  #Check if this chat has a previous location
-        data = json.load(f)
-        currentLocation = data['PATH']
-        f.close()
-    except:
-        currentLocation = "/home"
-
-    resp = "PATH: $"+currentLocation+"\n\n\n"+os.popen("ls").read()
-    send_message(resp,chat_id) 
-
-    
-    
- 
 def answer_telegram (msg, chat_id):
-    if(msg.lower() == "ip"):
-        ip=get_ip()
+    if(msg.lower() == "help"):
+        resp='''Available commands:
+        
+ls: displays current folder files
+
+cd *path*: move arround folders 
+
+cat *file*: displays text of the file
+
+ip: Returns the IP of the server
+
+Upload an file: It will upload the file to the server in the path you are in the moment
+
+get *file*: Send throught telegram the file you chose
+
+python3 *file*.py: If you have all the requirements for executing the program it will execute the python file and return the output'''
+        send_message(resp,chat_id)
+    elif(msg.lower() == "ip"):
+        ip=Basicfunctions.get_ip()
         send_message(ip,chat_id)
     elif(re.match("cd .*", msg.lower())):  #cd_command
         folder = msg[3:]
         if re.match("\/.*", folder): #Checking if the string starts with slash
             folder.replace("/", "", 1)   
-        cd_function(folder, chat_id)
+        resp=Basicfunctions.cd_function(chat_id, ScriptLocationPath, folder)
+        send_message(resp,chat_id)
     elif(re.match("ls", msg.lower())):
-        ls_function(chat_id)
+        folder = msg[3:]
+        if re.match("\/.*", folder): #Checking if the string starts with slash
+            folder.replace("/", "", 1)
+        resp=Basicfunctions.ls_function(chat_id, ScriptLocationPath, folder)
+        send_message(resp,chat_id)
+    elif(re.match("get .*", msg.lower())):
+        document = msg[4:]
+        if re.match("\/.*", document): #Checking if the string starts with slash
+            document.replace("/", "", 1)
+        document=UpDownfunctions.uploadFile(chat_id, ScriptLocationPath, document)
+        send_document(document, chat_id)
     else:
         print(msg)
         resp = os.popen(msg).read()
@@ -123,6 +120,7 @@ def answer_telegram (msg, chat_id):
                 resp = "Command not available"
                 send_message(resp,chat_id)
     
+    
 def check_telegram_dinamic_ChatID():
     while True:
         global update_id
@@ -130,15 +128,19 @@ def check_telegram_dinamic_ChatID():
         # Request updates after the last update_id
         for update in bot.get_updates(offset=update_id, timeout=10):
             update_id = update.update_id + 1
+            print (update)
             if update.message:  # your bot can receive updates without messages
                 msg=update.message.text
                 chat_id=update.message.chat.id
-                """"""""
-                print(update) #!! USELESS, JUST FOR DEVELOPMENT REASONS
-                
-                """"""""
                 print(msg) #The command is printed
-                answer_telegram (msg, chat_id)
+                if(msg != None): # if msg is none then is not a txt message
+                    answer_telegram (msg, chat_id)
+                elif(update.message.sticker!=None): #
+                    url=UpDownfunctions.sticker()
+                    send_sticker(url)
+                else:
+                    resp=UpDownfunctions.downloadFile(update, chat_id, ScriptLocationPath, bot)
+                    send_message(resp,chat_id)
                 
         sleep(4)
 
@@ -152,8 +154,11 @@ def check_telegram():
                 if update.message:  # your bot can receive updates without messages
                     msg=update.message.text
                     print(msg) #The command is printed
-                    
-                    answer_telegram (msg, chat_id_config)
+                    if(msg != None): # if msg is none then is not a txt message
+                        answer_telegram (msg, chat_id_config)
+                    else:
+                        resp=UpDownfunctions.downloadFile(update, chat_id_config, ScriptLocationPath, bot)
+                        send_message(resp,chat_id_config)
         sleep(4)
 
 init()
